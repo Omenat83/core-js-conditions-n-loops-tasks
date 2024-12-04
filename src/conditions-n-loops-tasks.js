@@ -403,22 +403,28 @@ function rotateMatrix(matrix) {
  *  [2, 9, 5, 9]    => [2, 5, 9, 9]
  *  [-2, 9, 5, -3]  => [-3, -2, 5, 9]
  */
-function sortByAsc(arr) {
-  if (arr.length < 2) return arr;
-  const result = [...arr];
 
-  for (let i = 0; i < result.length - 1; i += 1) {
-    let minIndex = i;
-    for (let j = i + 1; j < result.length; j += 1) {
-      if (result[j] < result[minIndex]) {
-        minIndex = j;
+function sortByAsc(arr) {
+  const quickSort = (arrRec) => {
+    if (arrRec.length <= 1) {
+      return arrRec;
+    }
+    const pivot = arrRec[0];
+    const leftArr = [];
+    const rightArr = [];
+    for (let i = 1; i < arrRec.length; i += 1) {
+      if (arrRec[i] < pivot) {
+        leftArr[leftArr.length] = arrRec[i];
+      } else {
+        rightArr[rightArr.length] = arrRec[i];
       }
     }
-    if (minIndex !== i) {
-      const temp = result[i];
-      result[i] = result[minIndex];
-      result[minIndex] = temp;
-    }
+    return [...quickSort(leftArr), pivot, ...quickSort(rightArr)];
+  };
+  const sorted = quickSort(arr);
+  const result = arr;
+  for (let i = 0; i < result.length; i += 1) {
+    result[i] = sorted[i];
   }
   return result;
 }
@@ -461,8 +467,55 @@ function shuffleChar(/* str, iterations */) {
  * @param {number} number The source number
  * @returns {number} The nearest larger number, or original number if none exists.
  */
-function getNearestBigger(/* number */) {
-  throw new Error('Not implemented');
+function getNearestBigger(number) {
+  let num = number;
+  const numArr = [];
+  while (num > 0) {
+    numArr.push(num % 10);
+    num = Math.floor(num / 10);
+  }
+  const size = numArr.length;
+  for (let i = 0; i < Math.floor(size / 2); i += 1) {
+    const temp = numArr[i];
+    numArr[i] = numArr[size - 1 - i];
+    numArr[size - 1 - i] = temp;
+  }
+  let point = -1;
+  const numTale = [];
+  for (let i = size - 1; i >= 0; i -= 1) {
+    if (numArr[i - 1] < numArr[i]) {
+      point = i - 1;
+      break;
+    }
+  }
+  if (point === -1) {
+    return num;
+  }
+  for (let i = point + 1; i < size; i += 1) {
+    numTale.push(numArr[i]);
+  }
+  let taleMin = numTale[0];
+  let taleMinIndex = 0;
+  for (let i = 1; i < numTale.length; i += 1) {
+    if (numTale[i] < taleMin && numTale[i] > numArr[point]) {
+      taleMin = numTale[i];
+      taleMinIndex = i;
+    }
+  }
+  const temp = numArr[point];
+  numArr[point] = numTale[taleMinIndex];
+  numTale[taleMinIndex] = temp;
+  numTale.sort();
+  const numStart = [];
+  for (let i = 0; i <= point; i += 1) {
+    numStart.push(numArr[i]);
+  }
+  const resultArr = [...numStart, ...numTale];
+  let result = 0;
+  for (let i = 0; i < resultArr.length; i += 1) {
+    result = result * 10 + resultArr[i];
+  }
+  return result;
 }
 
 module.exports = {
